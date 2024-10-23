@@ -1,0 +1,485 @@
+Docker :
+	Le plus qu'apporte Docker à la containeurisation est la notion d'images. Elles sont accessible via des registry. Celui par defaut est hub.docker.com.
+	Docker facilité le developpement, le packaging et le deploiement d'application.
+
+Modèle client serveur Docker :
+	+ client : docker
+	+ serveur : daemon docker (dockerd). dockerd expose une API dont les endpoints sont mappés sur les commandes docker. Par exemple docker ps => GET /containers/json.
+		Cette APi est exposée au tavers de la socket UNIX /var/run/docker.sock. Mais le daemon docker peut être configuré pour écouter sur un port TCP. On peut plus
+		simplement s'y connecter en SSH depuis un client distant comme suit : docker -H ssh://user_machine@IP_machine commande_docker.
+		P.S. : pour voir la quelques config (notamment du servcie), lire les infos de la commande systemctl status docker.
+
+REPL :
+	Read Evaluate Print Loop. Permet de tester en mode interactif un container. Par exemple docker conatiner run -ti python:3
+
+Docker et les stack applicatives :
+	Les applications sont souvent composées d'un ensemble de services. Ces services peuvent être regroupés et lancés ensemble via un docker-compose.
+	Par exemple le docker-compose pour la stack elastoc se composera des services :
+		+ logstash, Beats : pour l'ingestion de logs
+		+ elastocseach : pour le stockage, l'indexation,l'analyse des logs
+		+ kibana : pour l'interface de visualisation
+		Un conatiner logstatsh utilise un fichier de conf qui a trois blocs :
+			+ input : ecoute du http
+			+ filter : ajoute, modifie chaque entrée de log
+			+ output : envoie les logs formatées en json par le bloc filter à elasticsearch 
+
+Container :
+	Vu comme une boîte noire.
+	Un container est un processus isolé des autres processus via les techniques d'isolation de linux : namespace. Il en existe 6 :
+		+ pid : donne au processus sa vision de lui-même et de ses fils
+		+ net : met le processus dans son propre réseau
+		+ mount : actroie au processus son propre système de fichiers
+		+ uts : actroie au processus sa gestion de nom d'hôte
+		+ ipc : isole les communication inter-processus
+		+ user : permet de faire des maping entre les utilisateurs de la machine hôte et ceux des containers
+	Les ressources d'un container peuvent être limtées grâce au Control Groups : RAM, I/O, CPU, Reseau. Exemple :
+		+ Pour tester la limitation de la RAM en lançant un process consommateur de RAM :
+			docker container run --memory 32m estesp/hogit => Le process sera killé dès que l'utilisation de la RAM aura atteint 32m
+		+ Pour tester la limitation du CPU en lançant un process qui stresse le CPU
+			docker container run -it --rm progrium/stress --cpu 4 => utilisation des 4 core de (100% sur une machine qui en a 4)
+			docker container run --cpus 0.5 -it --rm progrium/stress --cpu 4 => utilisation de 50% d'un core.
+			docker container run --cpus 2 -it --rm progrium/stress --cpu 4 => utilisation de 2 cores.
+			
+	Tous les conatiners partagent le kernel de la machine qui les héberge
+
+VM vs container :
+	Similitude : permettent d'exécuter des applications de manière isolées
+	Différences :
+			VM			vs			Container
+			néessite un hypervisor				C'est un processus
+			chaque VM a son OS				Partage le kernel de l'hôte
+			Lourd						Léger
+
+Vagrant et multipass:
+	Permet de créer des machines virtuelles. Il s'appuie sur un hypervisor. il m'a été recommandé celui de VirtualBox pour l'installation de 
+	Vagrant (VirtualBox a donc été installé). Or Linux a lui-même un hypervisor : KVM. Il est apparut un conflit entre les deux. KVM a été blacklisté pour faire 
+	tourner Vagrant comme suit : echo 'blacklist kvm-intel' >> /etc/modprobe.d/blacklist.conf. 
+	Multipass permet de contruire des VM ubuntu. C'est un peu chelou (j'ai pas réussi à me connecter en ssh sur une VM créée). Il utilise KVM comme hypervisor.
+	 
+Devops :
+	Moyen de réduire le temps entre la conception d'une fonctionnalité et sa livraison en production. Il est donc nécessaire que le devts et les opérateurs des 
+	plateforme de production "parlent" le même langage. L'approche Devops se focalise sur une automatisation accrue des différents processus du SI. 
+	Quelques outils et produits selon la typologie :
+		+ infrastructure : AWS, GCP, Microsoft Azur, DigitalOcean...
+		+ provisioning des machines : CloudFormation (AWS), Terraform..
+		+ build : Github, Gitlab, docker
+		+ test : jenkins, Selenium, circleci...
+		+ deploy : Ansible, CHEF, docker registry, ...
+		+ run : kubernetes, docker swarm, ...
+		+ mesure : Prometheus, elastic, ...
+
+Creation container :
+	Mode interactif :
+	docker container run -ti image commande (commande est optionnel et override l'instruction contenue dans l'instruction  CMD de l'image. Pour override
+	l'instruction ENTRYPOINT de l'image, il faut utiliser l'option --entrypoint) . Avec les options :
+		+ t : pour allouer un pseudo terminal au container
+		+ i : garde l'entrée standard du container ouverte
+	Une image est téléchargée par plusieurs morceaux : les layers. L'ensemble des layers constituera le système de fichier du container.
+	Pour quitter sans killer un container lancé en mode interactif, il faut faire CRTL-P CTRL-Q
+	
+	Binding :
+	Il s'agit de monter un repertoire ou un fichier de l'host dans le container avec l'une des deux options suivantes :
+		+ v : docker container run -v chemin_host:chemin_container...
+		+ mount : docker container run -mount type=bind,stc=chemin_host,dst=chemin_container...
+	On peut gérer des containers à partir d'un autre container. Il suffit de "binder" le socket de son daemon docker sur celui de son host. Cas d'utilisation :
+		+ docker container run --name admin_container -it -v /var/run/dokcer.sock:/var/run/docker.sock ubuntu => Création du container admin.
+		+ curl -XPOST --unix-sock /var/run/docker.sock -d '{"Image":"nginx:latest"}' -H 'Content-Type:application/json' http://localhost/containers/create => permet,
+			depuis le container admin de créer un conatiner à partir de l'image nginx:latest. Cette requete renvoie l'Id du container (id_container)
+		+ curl -XPOST --unix-socket /var/run/docker.sock http://localhost/container/id_container/start =>  Demarrage du container id_container 
+
+	Attention au binding qui peut être dangereux. Par exemple si on monte le / de l'host sur un repertoire host nommé repertoire_danger. Rien ne nous empêche de 
+	le supprimer. Ce qui entrainera la suppression du / de l'host. Pour se premubnir de tels cas, il faut ajouter l'option ro sur la partie container du binding :
+		docker container run -v /:/host:ro ....
+
+	Limitation de resources :
+	+ limitation de la RAM : option memory. Exemple : docker container run --memory 32m estesp/hogit => Le container est tué par docker si la limite est atteinte. Ou
+		encore pour limiter la mémoire hard (dernier carat à 4G) et la mémoire soft : docker container run --memory 4g --memory-reservation 2g -d redis
+	+ limitation du cpu : option cpus. Exemple : docker container run --cpus 0.5 -it --rm progrium/stress --cpu 4 (exemple d'une machine avec 4 core). Ou encore on
+		peut scpécifier les core à utiliser par le container : docker container run --cpuset-cpus 0,3... => n'utilise que les core 0 et 3
+
+Les droits dans un container :
+	Par defaut le container est lancé avec l'user root. Qui correspond aussi au root de la machine host.
+	L'utilisateur du container peut être changé :
+		+ lors de la création de l'image
+		+ au lancement du container avec l'option --user
+		+ après le lancement du container (gosu)
+	Il y a d'autres option utiles : --name nom_container => (nommer le container), --rm => supprimer les fichier du container quand il est stoppé, --restart=(on-failure)..
+
+Les commandes de base :
+	+ docker container run : pour lancer un container
+	+ docker container run -p 1000:9000 image_docker => lance le container et expose son port 9000 sur le port 1000 de la machine hôte.
+	+ docker container ls : pour lister les containers actif. ls -a si on veut lister les inactifs. l'option -q pour afficher juste les identifiants courts.
+	+ docker container inspect : pour afficher les détails d'un container . Exemple docker container inspect id_container. S'utilise aussi pour les images et les autres
+		primitives docker.
+		Pour récupérer un champ précis : docker container inspect --format "{{json .NetworkSettings.IPAddress }}" id_container
+	+ docker container logs : pour afficher les logs
+	+ docker container exec : pour lancer un processus dans un container existant
+	+ docker container stop : pour stopper un container. Par exemple docker container stop $(docker container ls -q) => stop tous les containers en cours
+	+ docker container rm : pour supprimer un container. Avec l'option -f on stoppe (le cas echeant) et on supprime ensuite.
+
+Docker sur Mac et Windows :
+	Pour ces OS l'installation de docker via Docker desktop, le cleint docker est installé sur l'host tandis que le daemon tourne dans une VM basée sur xhyve/Hyper-V.
+	C'est différent de linux où client et serveur sont installé sur l'host. Il peut être utile d'avoir un shell dans le daemon.
+	Pour ce faire, il faut créer un container dans la VM du daemon et donner à la commande de lancement quelques options pour que le processus lancé dans ce 
+	container se raccroche au processus d'id 1 de l'host :
+		docker run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+
+Images :
+	Peut être vue comme un template pour créer des containers. C'est aussi un système de fichiers qui contient le processus qui sera lancé dans le container ainsi
+	que toutes les dépendances dont ce processus a besoin. Ce système de fichier est composé de plusieurs layers. Un layer peut être partagé par un ensemble d'images.
+	Les images sont distribuées via des registry (celui officiel de docker est docker hub).
+	Une image est composée des éléments suivants :
+		+ Le code applicatif : Java, Node...
+		+ Les dépendances dotn le code a besoin : Jar...
+		+ Un environnement d'exécution : Runtime (Node, JRE, Ruby...)
+		+ Les binaires et librairies système : il sont utilisés pour effectuer des appels au kernel de la machine host. Exemple OS (ubuntu, alpine, centos...)
+	La construction d'une image se fait dans l'ordre inverse des composant ci-dessus. A chaque niveau, un ou plusieurs layers sont ajoutés au système de fichiers.
+
+	Le storage ou graph driver permet de constituer le système de fichier global dans lequel un container sera instancié à partir de l'image. Le storage ou graph driver
+	ajoute une layer supplémentaire en lecture-écriture permettant au processus dans lequel le container est lancé de pouvoir modifier le système de fichiers
+	sans pour autant modifier les layers de l'image. Il y a plusieurs drivers dont l'utilisation dépend du filesystem de la machine...
+	Tous les layers sont stockés par défaut dans /var/lib/docker.
+	
+	Un layer est le résultat d'une étape de la construction de l'image. Mais seules les instructions RUN, ADD et COPY créent des layers car ce sont les seules qui modifient 
+	le filesystem. Ces layers sont sauvegardées et récupérées sur la machine qui construit l'image.
+	
+
+Dockerfile :
+	Fichier texte qui permet de construire une image. Il contient une serie d'instruction pour construire le système de fichiers d'une image. Les étapes :
+		+ spécification d'une image de base
+		+ ajout des dépendances
+		+ ajout du code applicatif
+		+ définition de la commande à lancer
+	La commande "docker image build..." permet de construire une image à partir d'un dockerfile. Elle se présente comme suit :
+		docker image build [OPTIONS] PATH | URL | - où :
+			+ OPTIONS (les plus courantes) :
+				+ -f spécifie le fichier à utiliser pour construire l'image. par défaut ce sera le fichier Dockerfile se trouvant dans PATH (coontexte de build)
+				+ --tag | -t : spécifie le nom de l'image. Exemple [registry/]user/repository:tag si on veut l'envoyer dans un registry sinon c'est freestyle
+						mais au moins repository:tag. Pour le commun des mortels, repository est le nom de l'image et tag sa version.
+				+ --label : ajoute des métadonnées à l'image
+			+ PATH : précise le contexte de build de l'image (la racine des fichier utilisé pour le build. Là où docker cherchera le cas échéant le Dockerfile)
+			+ URL : 
+				+ repository git : Exemple : docker image build url_repo_git#ma_branche:mon_repetroire => le contexte de build est me repertoire mon_repertoire
+					de la branche ma_branche au sein du repository url_repo_git
+					master est la branche par défaut et le / est le repertoire par defaut. On peut aussi utiliser un tag au lieu d'une branche.
+					Dans les faits, le repo est pullé dans un repertoire temporaire de l'host avant d'être envoyé au daemond
+				+ url d'une archive tar : Exemple docker image build http://server/context.tar.gz.
+					Dans les faits, le daemond docker télécharge sur son host (qui peut être une VM dans le cas de docker desktop sous windows et mac)
+					avant de l'utiliser comme conexte de build de l'image. l'archive peut ou ne pas être compresssée.
+				+ "-" (STDIN entrée standard) : exemple : docker image build - < Dockerfile ou Get-content Dockerfile | docker image build - (powershell windows)
+			Quand l'image est buildée avec une URL ou -, l'option -f est ignorée
+	Les principales instructions dans un dockerfile
+		+ FROM : image de base. FROM un_OS (alpine, ubuntu, centos) | serveur_application ou env. d'exécution (contient OS de base) | scratch (image docker vide)
+		+ ENV : définition des variables d'environnement. Exemple ENV path /usr/lib/toto => On définit une variable path avec sa valeur
+		+ RUN : Exécution d'une commande, construction du filesysem de l'image
+		+ COPY / ADD : Copie de ressource depuis la machine host dans le filesystem de l'image. Exemple COPY . $path. ADD permet de spécifier une URL pour la source ou
+			encore de depackager une archive. Privilégier l'utilisation de COPY puisque maitrise mieux comment la copie sera faite.
+		+ EXPOSE : expose un port de l'application
+		+ HEALTHCHECK : vérifie l'état de santé de l'application. 
+			Exemple : HEALTHCHECK --interval=5s --timeout=3s --retries=3 CMD curl -f http://localhost:8080/health || exit 1. 
+			Suppose d'avoir installé curl juste avant avec RUN apk update && apk add curl (souche alpine)
+		+ VOLUME : définition d'un volume pour la gestion des données. Exemple VOLUME /dat/db /data/config => Crée les deux repertoiress sur la machine host 
+			au lancement du container
+		+ WORKDIR : définition du repertoire de travail. Exemple WORKDIR ${path}. Avec path défini dans le ENV. WORKDIR ne fait que définir le repertoire de travail.
+				C'est l'instruction qui vient après qui le fait.
+		+ USER : utilisateur auquel appartient le processus du container. Toutes les instruction qui suivent la déclaration sont lancées avec ce user
+		+ ENTRYPOINT / CMD : définit la commande exécutée au lanement du container. ENTRYPOINT contient généralement le binaire et CMD les options. La commande
+			qui sera lancée est une concaténation des deux. La commande peut modifiée au lancement du container.
+
+	IL est aussi possible de créer une image à partir d'un container. On crée ainsi une image bonifiée avec tous les changements intervenus dans le container comme
+	par exemple les packages installés. Pour cela on utilise la commande docker commit comme suit :
+		docker commit [options] nom_container nom_image. Nom image est de le forme repository:tag. Pour les options faire docker commit --help
+
+ENTRYPOINT et CMD
+	Ces deux instructions sont utilisées dans le Dockerfile pour définir la commande qui sera lancée dans le container.
+	Dans une image, les instructions ENTRYPOINT et CMD peuvent être sépcifiées selon deux formats :
+		+ shell : exemple ENTRYPOINT | CMD /usr/bin/node index.js. Une commande spécifiée dans ce format sera exécutée via un shell présent dans l'image. Donc il 
+			faut s'assurer d'en avoir un(ce ne sera pas le cas pour une image crée FROM scratch par exemple.
+			Aussi dans ce mode les signaux ne sont pas forwardés au processus forkés (fils, héritiers)
+		+ exec : exemple ENTRYPOINT | CMD ["node", "index.js"]. Il n'est pas nécessaire d'avoir un shell dans ce cas. On utilisera souvent ce mode.
+		Les valeurs de ENTRYPOINT et CMD peuvent être écrasées au lancement du container :
+			+ pour ENTRYPOINT : --entrypoint new_valeur
+			+ pour CMD : en précisant la valeur après ne nom de l'image. Exemple : docker container run image nouvelle_commande
+	ENTRYPOINT défini seul permet de créer un wrapper autour de l'application. En gros l'instruction définit une commande de base à laquelle peuvent éventuellement
+		être passés des paramètres au lancement d'un container. La commande qui sera lancée dans le container sera une concaténation de la valeur de entrypoint
+		 et des paramètres. Exemple : docker container run mon_image mes_params
+	CMD défini seul indique simplemnt la commande par défaut qu'il faut lancer dans le container. 
+	
+Les layers docker
+	Une image docker est constituée de layers. Chaque layer contient une partie du filesystem. Pour savoir comment le driver en charge du stockage des images organise 
+	ces layers, il faut se rendre dans /var/lib/docker/ (repertoire où Docker gère toutes ses primitives - images, containers, volumes, reseaux...)
+	N.B. : Pour les hosts windows et Mac pour lesquels le daemon tourne dans une VM et pas sur le host, on pourra explorer ce répertoire depuis le shell obtenu après
+	le lancement de la commande suivante : docker run -it --privileged --pid=host debian nsenter -t 1 -m -u -n -i sh
+	Exploration :
+		+ on se déplace dans le repertoire /var/lib/docker/image/overlay2 où overlay2 est le nom du driver : cd /var/lib/docker/image/overlay2
+		+ rechercher les fichiers liés à l'image d'id id_image : find . | grep id_image. Pour chaque image, on a les fichiers de type suivants :
+			+ content : contient les infos de l'image. Lesquelles info sont accessibles via la commande docker image inspect id_image. On y trouve par exemple
+				tous les identifiants des layers qui constituent l'image...quelque part dans le noeud RootFS.
+			+ lastupdate : contient la date de dernière mise à jour de l'image
+			+ parent : l'identifiant du container qui a servi à créer l'image. C'est le dernier container intermédiaire committé lors du build de l'image.
+
+			Dans le fichier de type content, récupérons l'id d'un layer id_layer. A chaque id_layer est associé un repertoire eponyme dans 
+			/var/lib/docker/image/overlay2.	Le repertoire /var/lib/docker/image/overlay2/id_layer contient les fichiers de type suivant :
+				+ cache-id : contient l'identifiant du cache qui a été généré pour cette layer. Supposons id_cache. Le système de fichier généré pour cette
+					layer est alors accessible dans le repertoire /var/lib/docker/overlay2/id_cache/diff/
+				+ size : contient la taille du layer
+				+ diff : ???
+				+ une archive
+
+Multi-stage build :
+	Permet de builder une image en plusieurs étapes. Ce qui se traduit par plusieurs appels à l'instruction FROM dans le dockerfile. Par exemple pour exécuter 
+	une application java, on n'a besoin que du jre. Mais pour construire cette appplication il faut tout le jdk.
+	Dans un premier temps, on build cette application dans un container intermédiraire sur lequel il y a le JDK. On va ensuite créer une nouvelle image à
+	partir du jre et dans laquelle on copiera le binaire généré à l'étape précédente.
+
+Cache docker :
+	Lorsque Docker build une image, il crée à chaque instrcution des layers lorsque l'instruction modifie le filesystem. Sauf si le layer existe déjà dans en cache.
+	Mais lorsque le layer n'existe pas en cache, il le crée et le cache et invalide le cache i.e il ne fait plus l'efffort d'aller consulter son cache pour les 
+	autres instructions du Dockerfile.
+	L'astuce consiste à mettre le plus bas possible dans le Dockerfile les instructions dont les résultats changent fréquemment. Par exemple la copie du code source de
+	l'application...
+
+Le contexte de build :
+	C'est le repertoire à partir duquel l'image est construite (c'est le dernier paramètre de la commande docker image build...). A le construction de l'image, le client
+	Docker envoie tout le contexte de build au daemon. Ce qui peut alourdir l'image pour rien.
+	Il faut rajouter dans ce contexte de build un fichier .dockerignore pour ne pas copier les fichier inutiles pour l'image.
+
+Les commandes de base :
+	+ docker image ls nom_image : affiche toutes les versions de l'image dont le nom est nom_image. En gros c'est un filtre des image sur le nom.
+	+ docker image --filter dangling=true : liste les images qui ne sont plus référencées
+	+ docker image prune : supprime les images dangling
+	+ docker image save -o alpine.tar alpine : sauvegarde l'image alpine dans le fichier tar alpine.tar
+	+ docker image load < alpine.tar : permet de charger une image à partir du fichier alpine.tar.
+	+ docker history nom_image : donne l'historique des layres lors de la création de l'image.
+	+ docker image inspect|rm|... (comme aussi avec un container) pour affciher les détails | supprimer | ... une image.
+
+Registry :
+	C'est un depôt où sont stockées des images docker. Docker hub est le registry officiel des images docker.
+	Docker fournit aussi un regristry opensource. C'est une application disponible sous la forme d'une image docker : regristy. Cette application est une des briques de base
+	du Docker hub. Elle fournit des API http sur le port 5000 permettant de gérer les images.
+	Par défaut, un daemon Docker ne peut communiquer avec un registry que de manière sécurisée (TLS). Ce qui implique la création et la mise à disponibilité de certaificats.
+	Un registry localhost est l'execption à cette régle. 
+	Pour bypasser la sécurité pour un autre registry il faut ajouter --insecure-registry nom_registry au demarrage du dameon docker ou encore ajouetr un fichier de conf
+		qui spécifie les regirstries insecure. 
+		Cas d'utilisation 1 - modif du service docker :
+			+ systemctl status docker => affiche le status du service en précisant par quel fichier il a été lancé (lib/systemd/system/docker.service par exemple)
+			+ dans le fichier lancement du service , ajouter à la fin de l'entrée ExecStart : --insecure-registry nom_registry
+			+ systemctl daemon-reload && systemctl restart docker pour recharger le daemon et relancer le daemon docker
+		Cas d'utilisation 2 -  via le fichier de conf du daemon :
+			+ créer ou modifier /etc/docker/daemon.json en y ajoutant  : "insecure-registries": [liste des registries] (penser aux { et } en création !! fichier json
+			+ systemctl restart docker
+		
+	du container.
+	Pour pusher une image sur le registry, il faut nommer l'image suivant le format suivant : host:port/repository:tag où :
+		+ host et port sont le nom d'hôte et le port sur lesquels tournent le registry
+		+ repository et tag forment le nom de l'image. Exemple : pong:1.0. En fait un registry stocke toutes les versions d'une même image.
+	
+	Cas d'utilisation d'un registry :
+		+ docker container run -d -p 5000:5000 registry:2.6.2 => lance un registry local sur le port 5000
+		+ curl localhost:5000/v2/_catalog => renvoie la liste vide des repositories
+		+ docker image tag image_source localhost:5000/nouvelle_image => tag une image source pour la rendre "pushable" dans le regristry local
+		+ docker image push localhost:5000/nouvelle_image
+		+ curl localhost:5000/v2/_catalog => renvoie la liste des repositories avec cette fois le repo de nouvelle_image.
+		
+		Dans ce cas précis, les image pushées dans le regsitry sont stockées dans le file système du container plus précisément dans la layer read-write.
+		Pour persister de manière pérenne les images on utiliserait un système de fichiers comme "objects storage" (?) qui serait distribué de manière à assurer la
+		persistence des données ("object storage", c'est un simple mapping de volume ou quoi ?...)
+
+Stockage :
+	Toutes les modifications apportées dans un container sont perdues lorsqu'il est supprimé.
+	Les volumes sont des dossier ou fichiers existant en dehors du container pour découpler ses données de son cycle de vie. Les volumes sont créés via :
+		+ instruction VOLUME dans le Dockerfile
+		+ options -v ou --mount au démarragge du container
+		+ la commande "docker volume create" => permet de créer sur la machine host un volume clairement nommé dans /var/lib/docker qu'on pourra binder avec
+			un container. On va retrouver ce nom dans le Mountpoint quand on fera inspect du volume.(penser à installer l'utilitaire jq pour formatter les sorties 
+			de la commande inpsect quand on utilise l'option --format (apt install jq). à la fin de inpsect avec --format, rajouter "| jq"
+			Exemple : docker container inspect --format '{{json .GraphDriver }}' id_contaoner | jq
+			Par défaut, le driver utilsé pour créer un volume est un driver local, i.e crée un fichier pour chaque volume. Il y a d'autres de drivers.
+	Par defaut le driver local est utilé lors de la création de volume. C'est à dire que le point de montage du volume (MountPoint) est un repertoire local sur
+	l'hôte du docker. On peut installer d'autre drivers en utilisant des plugins pour persister monter ailleurs les volumes.
+		Cas d'utilisation avec le driver vieux/sshfs qui permet de monter un volume sur une machine distante via ssh
+		+ docker plugin install vieux/sshfs => pour installer le plugin
+		+ ssh user@hote_distant mkdir /tmp/data => pour créer le point de montage /tmp/data sur l'hote distant
+		+ docker volume create -d vieux/sshfs -o sshcmd=user@hote_distant:/tmp/data -o password=mot_depasse_user data => pour créer le volume data sur l'hote docker
+			et dont le point de montage est /tmp/data sur l'hote distant hote_distant
+		+ docker container run -v data:/data container => lance le container et mappe son volume /data dans le volume data de l'hote monté sur /tmp/data de hote_distant
+
+Docker compose :
+	C'est un utilitaire pour gérer des applications multi-containers. L'architecture du fichier docker-compose.yml est comme suit :
+		+ Services : les micro services de l'application
+		+ Volumes : les différents volumes utilisés par les microservices
+		+ Networks : les réseaux
+		+ Secrets : utilsés par Swarm
+		+ Configs : configs utilsées par Swarm	
+	Les services définis dans un docker-compose utilient le DNC défini dans le daemon pour leur réslution de nom (le dameon docker transcrit les nom de services en leurs
+	ips)
+
+Docker swarm :
+	Solution d'orchestration de Docker.
+	Un node swam est une machine faisant partie du cluster. Il peut être worker ou manager. APar defaut un lmanager est aussi un worker.
+	Si le node est manager, il peut être leader (désigné via l'algo RAFT de concensus distribué - entre les tous les mangers)) et il devient responsable de
+	 l'orchestration du swarm.
+	Un node peut avoir les états suivants :
+	+ active : le leader peut lui assigner des tâches
+	+ pause : aucune nouvelle tâche ne peut lui être assignées mais les tâches en cours restent inchangées.
+	+ drain : aucune nouvelles tâches ne peut lui être assignée. Les tâches en cours sont stoppées et assignées à d'autres nodes.
+
+	Pour voir la liste des commandes (pas nombreuses) faire docker swarm --help et docker node --help. Entre autre, nous avons :
+	+ docker swarm init : initilse un cluster swarm dont le manager est le noeud courant. Cette instruction indique en retour les commandes à lancer pour ajouter
+		des noeuds worker ou des noeuds manager
+	+ docker node ls : liste les nodes du cluster. Cette commande se lance sur un node manager
+	+ docker node promote mon_noeud : promeut un noeud en tant que manager
+	+ docker node demote
+	+ docker node update --availability pause|drain|active mon_noeud permet de mettre à jour le statuts de mon_noeud
+
+Service :
+	C'est une notion qui a été introduite dans swarm et qui permet de définir la manière de lancer les containers d'une application (nombre d'insatnces du service...). A la 
+	définition d'un service, il y a une boucle de réconciliation qui est constamment en action pour s'assurer que la définition du service correspond à ce qui tourne sur le
+	swarm (nombre d'instance....)
+	Le service peut fonctionner suivant deux modes :
+		+ repliqué (par defaut) : permet de spécifier le nombre de répliquats(par defaut 1) du service
+		+ global : une instance du service s'exécute sur chaque noeud du swarm
+	A cahque service est associée une adresse IP virtuelle (VIP) qui est retournée par le DNS du daemond Docker à partir du nom du service. Le trafic entrant pour cette 
+	VIP est loadbalancé entre les différents répliquats.
+	Un service peut publier un ou plsieurs ports vers l'extérieur. Grace au mécanisme de routing mesh disponible dans swarm, ce port sera disponible depuis chaque node
+	du swarm. Si une requête arrive sur un node qui n'a pas de repliquat du service qui a publié le port, elle sera loadbalancée vers un node qui a un repliquat du
+	service.
+	docker service --help. Exemple de commandes (à lancer sur un node manager) :
+	+ docker service create --name vote -p 8080:80 --replicas 6 instavote/vote:latest => crée 6 instances du service vote. 
+		Chaque  instance (tâche) contient un container basé sur instavote/vote:latest et qui expose le port 8080.
+	+ docker service ps www => affiche les tâches du service www
+	+ docker service scale www=1 => met à jour le nombre de replicas à 1 pour le service www
+	
+	Exemple de lancement avec binding :
+	docker service create --name visualizer --mount type=bind,source=/var/run/docker.sock,destination=/var/run/docker.sock --constraint 'node.role=manager' 
+		-p "8000:8080" dockersamples/visualizer:stable. 
+	Le type de mount peut être "volume" du genre : --mount type=volume,src=nom_volume,dst=volume_a_monter
+
+Rolling update :
+	C'est le processus de mise à jour incrémental d'un service (l'image de base). Les repliquas sont mis à jour les uns après les autres.
+	Des options permettent de spécifier le nombre de répliquas à mettre à jour simultanément et le délai de maj entre chaque groupe.
+	Exemple :
+	+ docker service create --update-parallelism 2 --update-delay 10s -p 8080:80 --repliquas 4 --name vote instavote/vote
+	+ docker service update --image instavote/vote:indent vote => met deux à deux les repliquas du service vote avec un délai de 10s entre chaque MAJ
+
+Rollback :
+	Au lancement d'un service, les infos de configuration  sont stockés dans la clé "Spec" lorsqu'on inspecte le service (docker service inspect).
+	Lorsque le service est mis à jour, il est la configuration précédent est stockée dans la clé "PreviousSpec" et celle en cours dans "Spec"
+	+ docker service rollback mon_service =>  permet de revenir à la configuration précédente (en s'appuyant sur PreviousSpec)
+	
+	Il est possible de définir roolback auto à la mise à jour d'un service avec l'option --update-on-failure-action rollback => on rollback quand la mise à jour
+	du servie échoue.
+
+Secret :
+	Mécanisme introduit dans la version 1.13 pour gérer les données sensibles dans un cluster swarm : mot de passe, certificats TLS, clé privées, token authent....
+	Un secret est généré via une ligne de commande.	Ces secrets sont sauvegardés dans les logs crytpées utilisées par Raft et sont disponible à l'exécution dans 
+	/run/secrets/mon_secret (fichier temporaore créé dans le container)
+	Exemple de cas d'utilisation :
+	+ echo "abcdefgh" | docker secret create password - => crée le secret nommé password dont le contenu est "abcdefgh"
+	+ docker service create --name api --secret password ubuntu => lance une instance du service nommé api qui fait tourner un container basé sur l'image ubuntu.
+		Pour voir le contenu du secret, il faut rentrer dans le container et l'afficher avec la commande cat /tun/secrets/password
+	+ docker service update --secret-rm password api => supprime le sercret nommé password du servie api.
+
+
+Config :
+	Regroupe des données non sensible et permet de découpler la config du cycle de vie d'un service.
+	Dans la définition du service en mode fichier docker-compose, on définit dans le service une config via la clé configs (en définissant source, 
+	target - dans le container -, le user, le groupe, ...)
+	
+	Dans le fichier docker-compose, au même niveau que services, on définit sous la clé configs une config dont le nom correspond à la source définie plus haut. Dans le
+		champ file de cette config, indiquer le fichier (local) de configuration.
+
+Stack :
+	Permet de définir un groupe de services qui forment une application. C'est l'équivalent de docker-compose sur Swarm. Lol.
+	La stack Swarmprom accessible via github.com/stefanprodan/swarmprom permet de monitorer un Swarm. Elle se compose de services tels que :
+		+ dockerd-exporter : qui expose les metrics du docker dameon
+		+ cadvisor : qui expose les metrics des containers
+		+ prometheus : qui collecte et saubegarde ces metrics
+		+ grafana : qui permet de visualiser ces metrics
+		+ alertmanager : qui permet de définir des alertes en se basant sur ces metrics
+		+ unsee : qui définit un dashborad
+		+ caddy : un server web qui expose des endpoints de l'application
+
+Routing Mesh :
+	Mécanisme introduit en même temps que Swarm mode et qui permet à des services de publier des ports vers l'extérieur. Lesquels ports sont accessibles depuis tous 
+	les noeuds du swarm. En dessous, il y a les techno IPVS et iptables qui permettent d'avoir un loadbalancing de niveau 4 i.e niveau IP.
+	Si une requête arrive sur un noeud qui n'a pas de tâches pour le service concerné, elle sera rerootée vers le noeud qui en a.
+
+Portainer :
+	C'est une interface web qui permte de gérer des Swarm et/ou des hôtes docker (https;//portainer.io)
+	Comme autre interface web de gestion de container, il y a Swarmpit
+
+Les networks :
+	Il y a par defaut 3 reseaux associés à des drivers : host, bridge, et none associés respectivement aux drivers host, bridge et null.
+	+ host permet de rattacher le container au réseau de host docker
+	+ bridge ets un réseau sans DNS dans lequel les containers peuvent communiquer uniquement via leurs IP. Créer un bridge manuellement rajoute la résolution de nom.
+	+ un container attaché à un réseau none n'a qu'une seule interface : la boucle locale. Un tel container n'est pas accessible.
+
+	Dans un swarm, il y a en plus des réseau précités, deux nouveaux réseaux :
+	+ docker_gwbridge (driver bridge) : assure la connectivité des containers vers l'extérieur
+	+ ingress (driver overlay) : s'étend vers les différentes machines du swarm en utilisant la techno VXLAN (virtual extensible LAN - dispo dans le kernel linux). Ce 
+		réseau intervinet dans les mécanisme de loadbalancing et de rooting mesh
+
+Securité :
+	Hardening : 
+	c'est un process de s&curisation d'un système par la limitation de la surface d'attaque.
+	Voir https://downloads.cisecurity.org pour la liste des recommandations de sécurité du CIS pour différentes palteformes dont Docker.
+	Voir https://github.com/docker/docker-bench-security pour les analyses de vulnérabilités relatives à Docker.
+	Pour lancer l'analyse de sécurité avec l'outil précédent :
+		docker run --rm --net host --pid host --userns host --cap-add audit_control -e DOCKER_CONTENT_TRUST=$DOCKER_CONTENT_TRUST \
+    		-v /etc:/etc:ro -v /usr/bin/containerd:/usr/bin/containerd:ro -v /usr/bin/runc:/usr/bin/runc:ro \
+		-v /usr/lib/systemd:/usr/lib/systemd:ro -v /var/lib:/var/lib:ro -v /var/run/docker.sock:/var/run/docker.sock:ro \
+		--label docker_bench_security docker/docker-bench-security
+	Le résultat est une évaluation des règles du CIS avec le niveau de satisfaction qui correspond et qyui peut être NOTE, PASS, INFO ou WARN
+
+	Capabilities :
+	Ce sont des primitives présentes dans le kernel linux permttant de découper les droits root en plusieurs catégories. Rompant ainsi avec la dichotomie root / non root.
+	Il y a plusieurs capabilités dont :
+		+ CAP_CHOWN : permet la modification des uid/gid
+		+ CAP_SYS_ADMIN : permet des opération administratives coté système
+		+ CAP_NET_ADMIN : permet des opérations adminitratives coté réseau...
+		+ ...
+	Un container est lancé par défaut avec des droits root auxquels sont attachés un nombre restreint de capabilities.
+	Ces capabilities peuvent être ajoutées / supprimées au démarrage du container.
+	Exemple :
+		Pour modifier par exemple le hostname tel que vu par un container, il faut lui ajouter la capability SYS_ADMIN : docker run -ti --cap-add=SYS_ADMIN alipne sh
+		Pour supprimer la capcity de faire du ping : docker run --cap-drop=NET_RAW alpine ping 8.8.8.8
+
+	LSM - Linux Security Module :
+	AppArmor et SELinux sont deux de ces LSM et correspondent à des implémentations du MAC (Mandatory Access Control).
+	Sur un système Linux, ces deux modules sont exclusifs l'un et l'autre. Il ajoute une couche au dessus du DAC (Discretionary Access Control - les droits +/-
+	classiques que nous connaissons) et définissent dont des droits supplémentaires.
+
+		AppArmor :
+		Module disponible par défaut sur les distributions ubuntu et openSuse.
+			+ Il ajoute des autorisations basée su rles chemin d'accès aux ressources
+			+ Il définit un profil de sécurité pour chaque application pour limiter ses droits
+			+ Spécifie quels fichiers une application peuut lire / ecrire / exécuter
+		Il y a profil ApArmor que Docker utilise pour lancer des container. Lequel profil denie les drots à /proc/core (deny @{PROC}/kcore rwklx)
+		pour désactiver ce profil de sécurité, il faut lancer le container comme suit : docker container run --security-opt apparmor:unconfined alpine
+		
+		SELinux :
+		Contrairement à AppArmor, SELinx s'applique sur le système entier. Il définit des attributs supplémentaires sur le système de fichier.
+		Ces attributs de sécurité s'appliquent aux entités que sont :
+			+ Les sujets : utilisateurs, applications, processus
+			+ Les objets : fichier, repertoires, devices, interfaces...
+		Un contexte est associé à chaque sujet et chaque objet et établit les régles déinissant les objets auxquels un sujet a accès.
+		Voir : https://opensource.com/business/13/11/selinux-policy-guide
+
+	Seccomp - Secure Computing mode :
+	opère au niveau des appels système. Il y en a près de 300 sur un système Linux standard (mkdir, ptrace, mount...). Certaines de ces fonctions sont désactivées
+	dans le profil par défaut que docker actroie aux containers. Mais un profil par défaut peut être défini au lancement d'un container.
+	Exemple : docker run --security-opt seccomp:policy.json alpine => permet de lancer un container avec le profil de sécurité policy.json
+
+Gestion des logs :
+	Les logs sont logées dans la layer du container, donc liés à son cycle de vie. Une bonne pratique consiste à ne pas les sauvegarder à l'intérieur de celui-ci.
+	Le  driver de log par défaut utilisé par le daemon Docker est json-file (voir docker info | grep "Plugin" -A 3). Ce driver crée un fichier json sur l'hôte docker
+	et rattach" au container : /var/lib/docker/containers/CONTAINER-ID/CONTAINER_ID-json.log
+	Quelques drivers de logs :
+		+ json-file : fichier local (driver par defaut)
+		+ awslogs : service aws cloudwatch, + gcplogs : service de logging de Google Cloud Plateform, + splunk, + logentries, + gelf : endpoint GELF (ex: Logstash), 
+		+ syslog : daemon syslog tournant sur une machine hote, + fluentd, + journald, ...
+		Tous ces drivers peuvent être installés via des plugins
+	
+	Mise en pratique : stack elastic
+	

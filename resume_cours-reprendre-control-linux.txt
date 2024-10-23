@@ -1,0 +1,420 @@
+C'est quoi Linux
+	Le système d'exploitation est l'outil qui fait le lien entre votre machine et vos programmes.
+	Windows, Mac OS et Linux sont les systèmes d'exploitation les plus connus.
+	Linux a la particularité d'être libre, c'est-à-dire que son code source (sa recette de fabrication) est ouvert : tout le monde peut le consulter. 
+	Par opposition, le code source qui a permis de concevoir Windows et Mac OS est fermé, on dit que ce sont des systèmes d'exploitation propriétaires.
+	Il existe de nombreuses variantes de Linux, que l'on appelle distributions.
+	Ubuntu est une des distributions les plus populaires à l'heure actuelle. C'est celle que nous utiliserons tout au long de cet ouvrage.
+	Il s'agit d'un dérivé de la distribution Debian.
+
+Télécharger Linux, c'est gratuit
+	Linux peut être utilisé de deux façons différentes : en mode console ou en mode graphique.
+	Le mode console est puissant mais plus délicat à apprivoiser. Les débutants préfèrent l'éviter au début.
+	Le mode graphique est similaire à ce que vous connaissez sous Windows et Mac OS : on y manipule des fenêtres avec une souris.
+	Il existe plusieurs variantes du mode graphique que l'on appelle gestionnaires de bureau : Unity, KDE, XFCE...
+	Pour obtenir Ubuntu, il suffit de télécharger gratuitement une image de disque (format.iso) et de la graver sur un DVD.
+
+Tester et installer ubuntu
+	Il est possible d'installer Ubuntu directement depuis Windows, mais la manipulation classique consiste plutôt à redémarrer l'ordinateur avec le CD d'Ubuntu 
+	dans le lecteur.
+	La première fois, Ubuntu se charge directement sur le CD, en mode Live CD. Votre disque dur n'est pas modifié et vous pouvez tester Ubuntu tranquillement.
+	Si vous êtes décidés, il suffit de lancer le programme d'installation depuis Ubuntu et de suivre les étapes.
+
+Partitionner son disque
+	Un disque dur peut être virtuellement découpé en plusieurs sections différentes : c'est le principe du partitionnement.
+	Pour installer Linux, vous devez modifier le partitionnement de votre disque. L'opération consiste à réduire l'espace alloué à Windows pour faire de la place à Linux.
+	Les partitions Windows stockent les fichiers selon un système appelé NTFS, tandis que les partitions sous Linux utilisent plus souvent les systèmes ext3 et ext4.
+	On crée une partition spéciale appelée swap d'environ 1 Go, qui sert d'extension à la mémoire vive lorsque celle-ci est pleine.
+	Après l'installation, un outil appelé GRUB vous demandera à chaque démarrage quel système d'exploitation vous souhaitez lancer.
+
+Découverte du bureau Unity
+	Unity est un des plus célèbres gestionnaires de bureau. Il est installé par défaut avec Ubuntu.
+	Vous devez vous connecter au démarrage de la machine, en indiquant votre nom d'utilisateur et votre mot de passe.
+	Les menus en haut de l'écran sous Unity donnent accès à vos programmes et fichiers.
+	La logithèque Ubuntu est un outil simple d'emploi qui vous permet d'installer de nouveaux programmes.
+	Les mises à jour de tous les programmes sont centralisées et peuvent s'effectuer automatiquement.
+
+Découverte du bureau KDE
+	KDE est un autre gestionnaire de bureau très célèbre, installé par défaut si vous avez téléchargé Kubuntu.
+	Si vous avez choisi Ubuntu et que vous utilisez donc Unity, vous pouvez installer KDE en passant par la logithèque. 
+	Il suffit d'installer kubuntu-desktop (version complète avec de nouveaux programmes) ou kde-minimal (version allégée).
+	Vous pouvez sélectionner votre gestionnaire de bureau au démarrage, sur l'écran de connexion.
+	Le tableau de bord de KDE est entièrement personnalisable. Vous pouvez lancer vos programmes depuis le menu K, similaire au menu Démarrer de Windows.
+
+Installez Linux dans une machine virtuelle
+	VirtualBox est un outil qui permet de faire tourner un ordinateur virtuel au sein d'un système d'exploitation.
+	Nous utilisons ici VirtualBox pour installer Linux à l'intérieur de Windows. Il n'y a aucun risque de conflit entre les deux car la machine virtuelle est cloisonnée.
+	Vous pouvez utiliser la machine virtuelle comme un véritable ordinateur mais vous perdez légèrement en performances. Cette technique est à 
+	réserver à ceux qui souhaitent ne prendre aucun risque lors de l'installation d'Ubuntu ou qui désirent simplement essayer la distribution.
+	Une fois Ubuntu installé dans la machine virtuelle, il est conseillé d'installer les additions invité. Cela améliorera 
+	les performances et vous permettra notamment d'utiliser Ubuntu en plein écran, de partager des dossiers et le presse-papier, etc.
+
+La console, ça se mange ?
+	Bien que rebutante au premier abord, la console nous offre une puissance importante. Elle nous permet d'exécuter des actions simples comme 
+	complexes, qui sont parfois impossibles à réaliser avec une interface graphique.
+	On peut lancer une console en plein écran avec les touches Ctrl + Alt + F1 à F6, mais il est plus simple aujourd'hui d'ouvrir une console 
+	via une interface graphique à l'aide du programme Terminal (sous Unity) ou Konsole (sous KDE).
+	On peut se connecter en console à distance à son ordinateur sous Linux grâce au protocole SSH. Cette technique est très fréquemment utilisée 
+	pour administrer des serveurs sur Internet équipés de Linux.
+
+Entrer une commande
+	La console affiche une invite de commandes au début de la ligne. Cette invite rappelle votre nom d'utilisateur, le nom de la machine ainsi
+	 que le dossier dans lequel vous vous trouvez.
+	On rentre des commandes dans la console pour demander à l'ordinateur d'exécuter des actions.
+	Chaque commande peut être complétée de paramètres qui agissent comme des options pour modifier l'action de la commande.
+	Les paramètres sont généralement constitués d'une lettre précédée d'un tiret (-a) ou de plusieurs lettres précédées de deux tirets (--all).
+	Après avoir saisi les premières lettres d'une commande, on peut compléter son nom à l'aide de la touche Tabulation.
+	On peut retrouver les commandes précédentes à l'aide des flèches directionnelles Haut et Bas ou encore effectuer une recherche parmi 
+	les commandes précédentes avec Ctrl + R.
+	Il existe de nombreux autres raccourcis clavier qu'il est recommandé de connaître pour pouvoir profiter pleinement de la console.
+
+La structure des dossiers et des fichiers
+	Sous Linux, tout est organisé sous forme de fichiers. Il n'y a pas de lecteur du type C: comme sous Windows.
+	Les dossiers sont imbriqués entre eux à partir du dossier parent principal/. On l'appelle la racine.
+	Le dossier dans lequel les utilisateurs stockent leurs documents est/home. Si votre login estpatrick, alors votre dossier personnel sera/home/patrick.
+	La commande pwd permet de savoir en console dans quel dossier on se situe.
+	ls affiche la liste des fichiers présents dans le dossier actuel.
+	cd permet de changer de dossier.
+
+Manipuler les fichiers
+	cat permet d'afficher tout le contenu d'un fichier, mais lorsque celui-ci est long, il est préférable d'utiliser less qui affiche le fichier page par page.
+	On peut obtenir uniquement le début ou la fin d'un fichier avec head et tail. En utilisant tail -f on peut suivre l'évolution d'un fichier 
+	en temps réel, ce qui est utile sur les fichiers de log qui enregistrent l'activité du système.
+	mkdir permet de créer un dossier,touchpermet de créer un fichier vide.
+	cp permet de copier un fichier ou un dossier, tandis quemvpermet de les déplacer ou de les renommer.
+	rm supprime un fichier. Il n'y a pas de corbeille en console, la suppression est définitive ; il faut donc être prudent.
+	On peut créer des liens (raccourcis) vers des fichiers et dossiers à l'aide de la commande ln.
+
+Les utilisateurs et les droits
+	Chaque personne qui utilise une machine Linux possède un compte utilisateur.
+	Les utilisateurs sont classés par groupes.
+	Il existe un superutilisateur qui a tous les droits : root. C'est l'administrateur de la machine, le seul à être autorisé à installer des 
+	programmes ou effectuer certaines modifications sur le système.
+	Certaines commandes ne fonctionnent que lorsqu'on est root et nécessitent donc de se transformer en root à l'aide de sudo. C'est le cas de 
+	la commande d'ajout d’utilisateur (adduser), de suppression d'utilisateur (deluser) ou encore de changement de propriétaire d'un fichier (chown).
+	On peut modifier les droits d'accès à un fichier avec chmod. Il existe trois types de droits : r (droit de lecture), w (droit d'écriture) et x (droit d'exécution).
+
+Nano, l'éditeur de texte du débutant
+	Un éditeur de texte est un programme qui ouvre des fichiers texte (un peu comme Bloc-Notes sous Windows). On en a régulièrement besoin 
+	sous Linux pour modifier des fichiers de configuration, par exemple.
+	Il existe de nombreux éditeurs de texte en console qui peuvent être très complets, comme Vim et Emacs.
+	L'éditeur Nano est un des éditeurs en console les plus simples à utiliser ; nous commençons donc par découvrir celui-ci.
+	On utilise plusieurs raccourcis clavier dans un éditeur de texte comme Nano.Ctrl + Wlance une recherche,Ctrl + Oenregistre le fichier,Ctrl + Xpermet de quitter, etc.
+	On peut utiliser Nano pour modifier son fichier de configuration .bashrc et personnaliser sa console. On peut notamment s'en servir 
+	pour colorer l'invite de commandes et créer des alias.
+
+Installer des programme avec apt-get
+	La plupart des distributions Linux proposent un moyen centralisé de télécharger et d'installer des logiciels facilement. L'installation de 
+	programmes y est généralement beaucoup plus simple que sous Windows !
+	Sous Ubuntu, on peut utiliser des interfaces graphiques pour télécharger et installer des logiciels. En console, on fait appel au programmeapt-get.
+	On télécharge les programmes depuis des serveurs (fournis par Ubuntu, votre fournisseur d'accès ou une université) qui font office de dépôts.
+	apt-get update met à jour la liste des programmes (appelés paquets) qui existent.
+	apt-cache search permet de rechercher dans la liste des paquets.
+	apt-get install télécharge et installe un paquet.
+	apt-get upgrade met à jour tous les paquets installés.
+	apt-get autoremove permet de supprimer un paquet.
+
+RTFM : lisez le manuel !
+	Sous Linux, toutes les commandes et leurs paramètres sont documentés dans le manuel. Il est recommandé de lire le manuel à chaque fois 
+	que vous avez des questions sur une commande car la réponse s'y trouve la plupart du temps.
+	On fait appel au manuel avec la commande man suivie du nom de la commande sur laquelle on veut avoir plus d'informations. Par exemple : man mkdir.
+	Dans le manuel, on se déplace avec les touches fléchées ou Page Up et Page Down, on fait une recherche avec la touche / (slash) et on quitte avec la touche Q.
+	Le manuel d'une commande commence toujours par son SYNOPSIS : c'est un résumé des différentes manières d'utiliser la commande. Les options 
+	facultatives sont écrites entre crochets.
+	Pour trouver une commande correspondant à un certain usage, utilisez apropos. Ainsi, apropos sound affichera toutes les commandes ayant un rapport avec le son.
+
+Recherche de fichiers
+	Pour rechercher un fichier sur tout le disque, la commande locate est très rapide mais ne trouvera pas les fichiers qui viennent d'être créés dans 
+	la journée. On peut mettre à jour la liste des fichiers qu'elle connaît en appelant updatedb.
+	find est une commande plus puissante mais plus lente qui va parcourir votre disque à la recherche de vos fichiers. Elle peut s'utiliser avec 
+	trois paramètres, dans l'ordre : où chercher, que chercher et que faire avec.
+	On peut rechercher des fichiers en fonction de leur nom (-name), de leur taille (-size), de leur date de dernier accès (-atime)…
+	Au lieu d'afficher les fichiers trouvés, on peut automatiquement les supprimer avec -delete ou exécuter la commande de son choix sur chacun d'eux avec-exec. Par exemple 
+	find   -name "*.jpg" -exec chmod 600 {} \;
+
+Extraire, trier et filtrer des données
+	grep est une commande couramment utilisée pour rechercher un mot dans un fichier.
+	On peut utiliser des expressions régulières, un système complexe mais puissant, pour effectuer des recherches précises. On fait dans ce cas appel à la commandee grep.
+	Dans les expressions régulières, on a :
+		"." =  un caractère quelconque, ^
+		"^" = début de ligne
+		"$" = fin de ligne
+		"[]" = un des caractères entres ces crochets
+		"?" = l'élément précédent est optionnel (0 ou 1 fois)
+		"*" = l'élément précédent peut être présent 0 ou plusieurs fois
+		"+" = l'élément précédent peut être présent 1 ou plusieurs fois
+		"|" = ou logique
+		"()" = groupement d'expressions
+	sort trie des lignes de texte par ordre alphabétique. Le paramètre -n permet de trier par ordre numérique.
+	wc compte le nombre de lignes, de mots et d'octets dans un fichier.
+	uniq supprime les doublons d'un fichier.
+	cut coupe une partie d'un fichier. Par exemple cut -d , -f 2-4 notes.csv permet de couper les champs 2 à 4 d'"un fichier csv dont les lignes sont délimitées par des ",".
+
+Flux de redirection
+	Au lieu d'afficher le résultat d'une commande dans une console, il est possible de l'enregistrer dans un fichier. Il suffit d'ajouter le symbole > suivi du nom 
+	du fichier à la fin de la commande. Par exemple ls > liste_fichiers.txt enregistre la liste des fichiers dans un fichier plutôt que de l'afficher en console.
+	Le symbole>> enregistre à la fin du fichier au lieu de l'écraser s'il existe déjà.
+	Les symboles 2> et 2>> permettent de rediriger seulement les erreurs dans un fichier. Quant à 2>&1 il redirige les erreurs dans le même fichier que les messages normaux.
+	< permet de lire des données depuis un fichier et de les envoyer à une commande, tandis que << lit les données depuis le clavier.
+	Le symbole | combine des commandes : les données de la commande à sa gauche sont envoyées à la commande à sa droite. Ainsi, du | sort -nr 
+	récupère la liste des fichiers avec leur taille et l'envoie à sort pour qu'il la trie.
+
+Surveiller l'activité du système
+	Linux est multi-tâches (plusieurs programmes peuvent tourner en même temps) et multi-utilisateurs (plusieurs utilisateurs peuvent se servir de la même 
+	machine en même temps en s'y connectant via Internet).
+	w indique quels utilisateurs sont sur la machine, ce qu'ils font et quelques autres statistiques comme la charge de travail de la machine et son uptime.
+	ps affiche la liste des processus, c'est-à-dire des programmes qui tournent sur la machine.top est un équivalent qui met à jour automatiquement la liste au fil du temps.
+	La combinaison de touches Ctrl + C permet d'arrêter une commande en cours d'exécution dans la console afin de pouvoir reprendre la main.
+	kill tue un processus, ce qui signifie qu'il lui demande de s'arrêter. Il a besoin du numéro du processus, généralement fourni parpsoutop. 
+	Si le processus ne s'arrête pas, on peut utiliser le paramètre-9qui coupe brutalement le processus (avec risque de perte de données).
+	halt commande l'arrêt de l'ordinateur,rebootson redémarrage.
+
+Exécuter des programme en arrière plan
+	Il est possible d'envoyer des programmes en arrière-plan dans la console afin de garder la main pour lancer de nouvelles commandes.
+	Pour lancer un processus en arrière-plan, on peut ajouter le symbole & à la fin de la commande. En revanche, lorsque vous fermez la console, 
+	le processus est arrêté. Si vous voulez qu'il continue, utilisez plutôt la commande nohup. nohup permet donc de détacher un processus de la console.
+	Si vous avez lancé une commande normalement (en avant-plan) mais que celle-ci s'éternise, vous pouvez utiliser le raccourci Ctrl + Z pour la mettre en pause 
+	et récupérer la main. Si vous lancez la commande bg (pas besoin de paramètre) ensuite, elle reprendra son exécution en arrière-plan.
+	la commande jobs permet de lister les processus lancés en arrière plan.
+	fg permet de mettre au premier plan une commande qui s'exécute en backgroung. S'il n'y en a qu'une seule, faire simplement fg (sans paramètre).
+	S"il y en a plus d'une, faire fg %n, où n est le numéro du processus après le lancement de la commande jobs.
+	Résumé du cycle de vie d'une commande :
+		- Running : état par défaut d'un processus. Ou celui d'un processus en "Running en arrière plan" ou "Stopé en arrière plan" sur lequel on fait un fg.
+		- Detruit : état du processus après un Ctrl+C ou appel à un kill
+		- Running en arrière plan : état du processus quand on l'exécute dès le départ avec & à la fin. Ou si on lance la commande bg sur un processus stoppé.
+		- Stopé en arrière plan : état du processu lorqu'on fait un Ctrl+Z
+	screen est un programme puissant que vous pouvez installer avec apt-get(il n'est pas présent par défaut). Il permet d'ouvrir plusieurs consoles virtuelles 
+	au sein d'une seule et même console, et donc d'exécuter facilement plusieurs processus en parallèle. Toute les commandes sous screen commencent par Ctrl + a.
+	Donc on fait Ctrl + a, on relache et on tape notre commande.
+	Les principales commandes de screen :
+		- Ctrl + a puis c : pour créer une nouvelle fenêtre
+		- Ctrl + a puis w : pour afficher la liste des fenêtres ouvertes. En bas, on verra 0-$ bash, 1$ bash, 2$ bash...
+		- Ctrl + a puis A : pour renommer la fenêtre en cours.
+		- Ctrl + a puis n : pour passer à la fenêtre suivante (next).
+		- Ctrl + a puis p : pour passer à la fenêtre précédente (previous).
+		- Ctrl + a puis Ctrl + a : pour revenir à la dernière fenêtre utilisée.
+		- Ctrl + a puis un chiffre de 0 à 9 : pour passer à la fenêtre n°X
+		- Ctrl + a puis " : pour choisir dans une liste déroulante la fenêtre.
+		- Ctrl + a puis k : pour fermer la fenêtre en cours.
+		- Ctrl + a puis S : pour découper un écran en plusieurs. Après faire un Ctrl + a puis Tab pour se déplacer dans 
+			une fenêtre et enfin Ctrl + a puis c pour créer une nouvelle fenêtre.
+		- Ctrl + a + X : pour annuler une division de fenêtre. En pratique on fait un Ctrl + a puis k (pour fermer) et enseuite Ctrl + a puis X.
+			Toutes les sous-fenêtres splitées restent regroupées dans la même session..
+		- Ctrl + a puis d : pour détacher la fenêtre screen du terminal et donc de contniuer l'exécution même si on ferme le terminal. C'est du nohup en mieux.
+	screen -r pour retrouver les sessions screen. Quand il y en a plusieurs, elles s'affichent dans une liste et il faut selectionner par numéro.
+	screen -ls permet d'afficher la liste des session en cours.
+
+Exécuter un programme à une une heure différée
+	date permet d'obtenir la date et l'heure mais aussi de modifier celles-ci. On peut personnaliser l'affichage de la date : date "+%Hh%Mm%Ss". Seules les 
+		lettres qui suivent le % sont interpretées. Pour afficher bienvenue en 2010 : date "+Bienvenue en %Y". 
+		Pour modifier la date : date MMDDhhmmYYYY. Il n'est pas obligatoire de préciser l'année. date 09301030 met la date au 30 sept 10h30 de l'année en cours.
+	at retarde l'exécution d'une commande à une heure ultérieure. Par exmple at HH:MM permet de lancer la commande a HH jeure et MM minutes.
+		Après avoir fixé l'heure d'exécution, on peut entrer toutes les commandes qu'on veut et finir en tapant Ctrl + d. Sur une même ligne, on peut lancer
+		plusieurs commandes en les séprant par des ;
+		Exemple de programmation de jobs :
+			- at 14:00 : une programmation pour 14:00
+			- at 14:30 09/10/2021 : une programmation pour le 10 septembre 2021 à 14:30 (l'heure est au format américain)
+			- at now + 3 minutes (ou hours, days, weeks, months, years) : programmation après un délai de 3 minutes (ou heures, jours...)
+	atq et atrm permettent respectivement de lister et supprimer les jobs en attente.
+	sleep permet de faire une pause. Par exemple touch toto.txt; sleep 1m; rm toto.txt. Faire une pause d'une minute entre les deux actions. Ne rien mettre suppose
+		que le temps est en millisecondes.
+	crontab permet d'exécuter une commande régulièrement. Contrairement à at qui est oneshot. La crontab est une commande qui permet de lire et modifier un fichier
+		appelé la "crontab". Ce fichier contient la liste des programmes à exécuter régulièrement.
+		crontab modifie le fichier 'la liste des programmes réguliers) et le programme cron se charge de les exécuter.
+		crontab -l affcihe la crontab, crontab -e l'édite et crontab -r la supprime (attention, il n'y a aucune demande de confirmation).
+		Une ligne de la crontab est comme suit : m h dom mon dow commande. Où :
+		- m : minute, de 0 à 59
+		- h : heure, de 0 à 23
+		- dom : jour du mois, de 0 à 31
+		- mon : mois, de 1 à 12
+		- dow : jour de la semaine, de 0 à 6. 0 correspond à dimanche.
+		Les différentes notations pour chacun des champs de la cron expression :
+		- 5 : exécuté lorsque le champ prend la valeur  5
+		- * : exécuté pour les valeurs du champ
+		- 3,5,6 : exécuté lorsque le champ prend les valeurs 3, 5 ou 6
+		- 2-8 : exécuté lorque le champ prend les valeurs de 2 à 8
+		- */4 : exécuté tous les multiple de 4. Par exemple à 0h, 34h, 8h, 12h,..
+		N.B. : Pour facilement lire la cronexpression, si le champ day of week est défini, commencer par le lire en premier. exemple : 0 0 * * 1,2,6 => le lundi,
+			mardi et samedi à minuit.
+	Les résultats du programme cron (celui qui exécute les commandes de la crontab) sont envoyé par eamil. Il faut donc penser à rediriger les sorties et les erreurs
+	dans un fichier. Par exemple 0 0 * * * commande >> mon_fichier.log 2>&1. Si je ne veux vraiment rien récupréer, mettre /dev/null à la place de mon_fichier.log.
+
+Archiver et compresser
+	Pour regrouper plusieurs fichiers et dossiers au sein d'un même fichier (appelé archive), on utilise le programme tar. Celui-ci ne compresse pas les fichiers
+	par défaut, contrairement à zip.Il faudra ensuite utiliser le programme gzip ou bzip2 pour la compression. 
+	Exemple d'utilisation :
+		+ tar -cvf archive.tar mon_dossier/ . On pourrait aussi faire tar -cvf archive.tar fichier1 fichier2. Mais il est de coutume de passer par un repertoire pour
+	ne pas que le désarchivage mette les fichiers partout. Les options : c, pour create, v pour verbose, f assembler l'archive dans un fichier.
+		+ tar - tf archive.tar : permet de voir le contenu d'une archive dans l'extraire
+		+ tar -rvf aarchive.tar fichier_supp : rajouter le fichier dans l'archive
+		+ tar -xvf archive.tar : premet d'extraire les fichiers de l'archive. x pour extract
+	gzip et bzip2 permettent de compresser une archive. gzip est plus courant alors que bzip2 est plus lent et plus performant.
+	Exemples :
+		+ gzip archive.tar donne le fichier compressé archive.tar.gz . Pour décompresser gunzip archive.tar.gz
+		+ bzip2 archive.tar donne le fichier compressé aechive.tar.bz2 . Pour décompresser bunzip2 archive.tar.bz2
+	Pour archiver et compresser en même temps :
+		+ tar -zcvf archive.tar.gz mon_dossier/ : pour archiver et compresser avec gzip. tar -zxvf archive.tar.gz pour décompresser et extraire
+		+ tar -jcvf archive.tar.bz2 mon_dossier/ : pour archiver et compresser avec bzip2. tar -jxvf archive.tar.bz2 pour décomprésser et extraire.
+		+ tar -ztf archive.tar.gz pour afficher le contenu d'une archive compressée gzip sans l'extraire
+		+ tar -jtf archive.tar.bz2 pour afficher le contenu d'une archive compressée bzip2 sans l'extraire
+	Il existe aussi les commandes zcat, zmore et zless pour affciher directement un fichier compressé
+	
+	En gros, les archives non compressées ont l'extension .tar, les archives compressées ont l'extension .tar.gz (pour gzip) ou .tar.bz2 (pour bzip2).
+	On utilise peu les formats de compression zip et rar sous Linux, mais il est possible de décompresser ces types de fichiers avec les programmes unzip et 
+	unrar. Ceux-ci ne sont en général pas installés par défaut.
+
+
+La connexion sécurisée à disatnce avec SSH
+	On peut se connecter à distance à un ordinateur équipé de Linux et accéder à sa console. C'est comme cela que l'on administre les serveurs sous Linux.
+	Le PC qui se connecte au serveur équipé de Linux est appelé le client. On peut se connecter à une console Linux à distance depuis n'importe quel autre 
+	système d'exploitation (Windows, Mac OS ou Linux). Le PC auquel on se connecte (le serveur) doit avoir insatllé un serveur SSH (sudo apt install openssh-server)
+	- Pour le démarrer : sudo /etc/init.d/ssh start (stop pour l'arrêter, reload, pour le recherger après une modif de conf)
+	- Pour modifier la conf du server -> /etc/ssh/ssh_config
+	Sous Windows, il faut installer le programme PuTTY pour se connecter à distance à un PC équipé de Linux.
+	Sous Linux et Mac OS, on utilise la commande ssh à laquelle on indique son login et l'adresse IP de la machine. Par exemple : ssh bossia@192.168.1.133.
+	Les données qui sont échangées entre le client et le serveur sont chiffrées grâce au protocole SSH afin de garantir la confidentialité des échanges.
+	- En gros dans un premier temps le server transmet sa clé publique au client avec laquelle ce dernier chiffre puis lui transmet sa clé secrete (chiffrement asymétrique)
+	- Les autres messages envoyés par le client au server sont chiffrés avec la clé secrète transmise précédemment (chiffrement symétrique)
+	Pour éviter de devoir entrer son mot de passe à chaque fois que l'on se connecte au serveur, on peut se créer une paire de clés 
+	d'identification : 
+	- ssh-keygen -t rsa (ou dsa : type de chiffrement asymétrique). Cette commande génère deux clés, une privée (id_rsa)et une publique (id_rsa.pub). Lors
+	de la génération de ce couple de clé, l'on peut définir une passphrase qui sera, si elle a été définie, demandée à chaque connexion au serveur.
+	- La clé publique du client est envoyée au serveur pour que celui-ci l'ajoute dans ses "connexions 
+	autorisées (/home/bossia/.ssh/authorized_keys) : ssh-copy-id -i chemin_cle_publique bossia@192.168.1.13
+	La clé publique ainsi générée et envoyée sur le serveur, la clé privée restant sur le PC du client. La connexion se fait alors sans mot (mais avec passphrase 
+	si elle a été définie lors de la génération des clés) de passe et reste sécurisée. Pour ne paas rentrée le passphrase : ssh-add.
+
+Transfert de fichiers
+	wget permet de télécharger un fichier. Il faut passer à la commande le lien du fichier à télécharger. Faire Ctrl + c pour arrêter le téléchargement.
+	Pour reprendre un téléchargement arrêté, lancer la commande avec l'option -c : wget -c lien_fichier. Bien entendu, il ne faut pas auparavant avoir supprimé
+	le fichier partiel. L'option --backgroung permet de lancer le téléchargement en fond.
+	Pour copier des fichiers d'un ordinateur à un autre, on utilise scp. Il fonctionne à l'aide de SSH, donc le transfert est sécurisé.
+	C'est scp fichier_origine destination. Par exemple scp fichier1 bossia@192.168.1.13:/home/bossia/mes_fichiers. Le fichier à copier peut être aussi sur le poste distant.
+	scp s'apppuie sur ssh pour la copie. Si le serveur ssh n'est pas lancé sur le port standard (22) alors il faut faire scp -P port_ssh fichier destination
+	On peut se connecter à un serveur FTP avec la commande ftp lien_seveur pour y télécharger et y envoyer des fichiers. get nom_fichier ou put nom_fichier pour
+	respectivement télécharger et uploader mon_fichier. Pour exécuter une commande en local depuis le serveur ftp, il faut la précéder de !. Exemple !cd, !ls, ...
+	Il exite une alternative sécurisée à ftp : sftp. La connexion se fait avec un login mot de passe : dftp login@serveur. sftp utilise le même port que SSH. Si celui-ci
+	n'est pas sur le port par defaut, le préciser avec l'option oPort=port_ssh. Exemple sftp -oPort=2300 login@serveur_ftp.
+
+	rsync permet de synchroniser le contenu de deux dossiers sur un même ordinateur ou sur deux ordinateurs différents. Il est particulièrement utile pour effectuer 
+	des sauvegardes. Le plus souvent incrémentielles, c'est à dire que seules les différences entres les repertoires à synchroniser ne sont sauvegardées.
+	Exemple : rsync -arv repertoire1/ repertoire2/ ou rsync -arv repertoire1/ login@machine:repertoire2/ (si repertoire 2 est sur une machine distante) . Avec les options :
+		+ a pour conserver les infos sur le ficher (droits, date de modifications...)
+		+ r pour sauvegarder les sous-dossiers
+		+ v pour le mode verbeux
+	Par défaut rsync ne reporte pas les suppressions de fichier dans la sauvegarde. Pour les supprimer, il faut lui préciser l'option --delete (rsync -arv --delete rep1/ rep2/)
+	Avec l'option backup, il est possible de conserver, à l'écart les fichiers supprimés. Exemple :
+	rsync -arv --delete --backup --backup-dir=chemin_absolu_rep_suppressions rep1/ rep2/ 
+	Si SSH ne tourne pas sur le port 22, le préciser à la fin de la commande avec -e "ssh -p port_ssh"
+
+Analyser le réseau et filtrer le trafic avec un pare-feu
+	host permet de convertir une ip en nom de dommaine et inersement. Exemple host openclassroom.com, host 93.43.9.2
+	Il est possible de gérer des noms d'hôtes personnalisés sur une machine. Il faut pour cela modifier le fichier /etc/hosts
+	whois nom_domaine permet d'obtenir les informations sur le nom de domaine nom_domaine.
+	ifconfig permet de gérer (par exemple activer désactiver) les interfaces réseau de la machine. Ces interfaces réseau représent les différentes manières pour la 
+	machine de se connecter au réseau. Exemple ifconfif interface etat. Avec interface = eth0, wlan0...et etat = up ou down.
+	netsat est une commande plus complète. Elle permet d'afficher les statistiques du réseau.
+	netsat -i affiche les statistiques des interfaces réseaux. Permettant notamment de savoir celle qui est active.
+	netsat -uta permet d'afficher les connexions ouvertes. avec u pour connexions UDP(voix notamment), t pour les connexions tcp et a pour afficher tous les 
+	états de connexions. Voir le manuel pour les autres options (-l en écoute, -s pour le résumé des stats...)
+	iptables est un parfeu s'utilisant en mode root. Son rôle est de filtrer le trafic réseau.
+		+ iptables -L permet d'afficher les règles
+		+ iptables -F permet de les réinitialiser
+	iptables contient trois sections (chain) : INPUT (regroupe les règles pour gérer le trafic entrant), FORWARD (pour les règles des redirections), 
+	OUTPUT (regroupe les règles gérant le trafic sortant)
+	Pour chacune des section, il y a une politique par défaut :
+		+ policy ACCEPT : pour accepter par défaut le trafic pour la section. Exemple : Chain INPUT (policy ACCEPT)
+		+ policy DROP : pour refuser par défaut tout le trafic pour la section. Exemple : Chain OUTPUT (policy DROP)
+	Une règle se présente sous la forme : "target prot opt source destination" (une dernière colonne non nommée qui indique le port de connexion qui s'affiche en 
+	chiffre avec l'option -n)
+		+ target : ce que fait la règle. ACCEPT pour autoriser un port et / ou une IP
+		+ prot : le protocole utilisé (tcp, udp, icmp...)
+		+ source : l'ip de source (dans la section INPUT c'est l'ordinateur qui se connecte à nous). anywhere si on autorise toutes les source
+		+ destiantion : l'ip de sdestination (dans la section OUTPUT, c'est l'ordi auquel on se connecte). anywhere si on permet toutes les connexions.
+	Pour gérer manipuler les règles dans une section :
+		+ ajout d'une régles en fin de section : iptables -A (chain) -p (protocole) --dport (port) -j (decision). Quand le port n'est pas précisé, tous les ports du 
+		protocole sont acceptés
+			Exemple : iptables -A INPUT -p tcp --dport ssh -j ACCEPT
+		+ suppression d'une règle avec un numéro précis : iptables -D chain rulenum
+			Exemple : iptables -D INPUT 2
+		+ insérer une règle à une position : iptables -I chain rulenum (si rulenum n'est pas précisé, l'insertion se fait en tête de section)
+			Exemple : iptables -I OUTPUT 3
+		+ remplacer une régle à une position : iptables -R chain rulenum
+		+ modifier la règle par défaut d'une section (chain) : iptables -P chain regle.
+			Exemple : iptables -P OUTPUT ACCEPT (ou DROP)
+	Pour assouplir les règles du parfeu, on autorisera toutes les connexions locales et celles déjà ouvertes avec les commandes :
+		+ iptables -A INPUT -i lo -J ACCEPT : autorise tout le trafic sur l'interface loopback
+		+ iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+	Toutes les règles définies pour le parfeu sont perdues au démarrage en l'absence d'un script qui s'exécutera au démarrage.
+	Il existe un programme qui permet de gérer le parfeu sous linux ufw (uncomplicated firewall)
+
+Compiler un programme depuis les sources
+	La plupart des programmes peuvent être installés facilement avec la commandeapt-get.
+	Certains programmes ne peuvent pas être installés viaapt-getcar ils ne sont pas référencés dans les dépôts d'Ubuntu. Dans ce cas, on peut rechercher sur 
+		le web un paquet .deb du programme, sous réserve qu’il existe.
+	Si la solution précédente échoue, on n'a pas d'autre choix que de compiler le programme à partir de ses sources. Cela consiste à effectuer les opérations 
+		suivantes dans l'ordre :
+	télécharger les sources du programme sur le web (souvent archivées au format.tar.gz) ;
+	décompresser l'archive (tar zxvf archive.tar.gz) ;
+	exécuter./configureet résoudre les problèmes ;
+	exécuter make pour compiler ;
+	exécuter sudo make installpour installer le programme
+	
+Vim : l'éditeur de texte du programmeur
+	Vim est un éditeur de texte très puissant en console et qui offre plus de possibilités que Nanoe. Son grand concurrent est Emacs.
+	Il y a un excellent tutoriel pour commencer avec vim accessible via la commande vimtutor.
+	Dans Vim, il existe trois modes : interactif, insertion et commande.
+		+ interactif : c'est le mode par défaut quand on arrive dans Vim. IL permet de faire des copier, couper, coller, annualtions...
+		+ insertion : permet de saisir du texte. Accessible via la touche i
+		+ commade : accessible via ":" et permet de lancer des commandes (quitter, enregistrer, rechercher...), des commandes shell ou 
+		encore (de)activer des options de Vim.
+	Les touches permettant de se déplacer sont h (gauche), j (bas), k (haut) et l (droite).
+	Sous vim il y a la notion de motion. Une motion permet de se déplacer dans le fichier. 
+		+ w : jusqu'au début (exclu lorsque la motion est associée à un opérateur) du prochain mot
+		+ e : jusqu'à la fin mot incluant le dernier caractère
+		+ $ : jusqu'à la fin de la ligne.
+		+ 0 : jusqu'au debut de la ligne.
+	Les motions peuvent aussi être associer à des opérateurs ou des coefficients. Par exemple :
+		+ dw : supprimer tout ce qui se trouve entre le curseur et le début du prochain mot
+		+ ye : copier tout ce qui se trouve entre le curseur et la fin du prohain mot.
+		+ 4w : se deplacer de 4 mots...
+	Les opérateurs standard de vim, comme les motions peuvent s'associer à) des coefficients :
+		+ x : pour supprimer une lettre. 4x pour en supprimer 4...
+		+ dd : pour supprimer (couper, car enregistrée dans le buffer) une ligne. 5dd supprime 5 lignes.
+		+ yy : pour copier une ligne. 2yy pour en copier 2.
+		+ p : pour coller ce qui se trouve dans le buffer. 3p pour la copier 3 fois.
+		+ r : pour remplacer une lettre. R pour entrer ne mode remplacement, on remplace jusqu'à sortir du mode avec Esc.
+		+ u : pour annuler la dernière modification. 4u pour annuler les 4 dernières 
+		+ gg pour aller ç la première ligne, G à la dernière et 7g pour aller à la ligne 7. pour affciher les lignes, activer l'option number.
+	Les options sous vim peuvent se configurer via le fichier de conf .vimrc ou via commande(de manière courante) comme suit :
+		+ :set option pour activer. Par exemple :set number poru activer le numéro de ligne.
+		+ :set nooption pour la désactiver. Par exemple :set nonumber pour désactiver le numéro de ligne.
+	Quelques options avancées :
+		+ /mon_mot : pour rechercher mon_mot. n pour passer au suivant et N pour revenir au précédent.
+		+ :s/mot1/mot2 : remplacer la permière occurrence de mot1 par mot2
+		+ :s/mot1/mot2/g : remplacer toutes les occurences de mot1 par mot2 dans la ligne où se trouve le curseur.
+		+ :num1,num2s/mot1/mot2/g : remplacer toutes les occurences de mot1 par mot2 dans toutes les lignes n° num1 à n° num2
+		+ :%s/mot1/mot2/g : remplacer toutes les occurrences de mot1 par mot2 dans tout le fichier.
+		+ :r nom_fichier : pour insérer le contenu du fichier à partir de la position du curseur.
+		+ :sp ou :vsp pour découper horizontalement ou verticalement l'écran.
+			En mode ecran divisé, il y a des raccourcis qui commencent tous par Ctrl + w :
+				+  Ctrl + w puis Ctrl + w : pour naviger de viewport en viewport
+				+ Ctrl + w puis j (ou h, k, l) pour se déplacer dans les viewports
+				+ Ctrl + w puis + (ou -) pour agrandir ou reduire le viewport actuel
+				+ Ctrl + w puis = pour égaliser la taille des viewports
+				+ Ctrl + w puis r (ou R) pour échanger la position des viewports
+				+ Ctrl + w puis q pour quitter un viewport
+		+ :! pour lancer une commande externe. Exemple :!ls 
+
+Introduction aux scripts shell
+	Contrairement aux apparences, il existe plusieurs environnements console différents : ce sont les shells. Ce sont eux qui gèrent l'invite de commandes et 
+	ses fonctionnalités comme l'historique des commandes, la recherche Ctrl + R, l'autocomplétion des commandes…
+	Le shell utilisé par défaut sous Ubuntu est bash, mais il existe aussi ksh, zsh, etc.
+	Il est possible d'automatiser une série de commandes. On crée pour cela un fichier contenant la liste des commandes à exécuter, appelé script shell. On dit que 
+	l'on fait de la programmation shell.
+	En fonction du shell utilisé, on dispose de différents outils pour créer son script shell. Nous utiliserons ici bash, donc notre fichier de script doit
+	 commencer par la ligne #!/bin/bash.
+	Dans le fichier de script, il suffit d'écrire les commandes à exécuter les unes après les autres, chacune sur une ligne différente.
+	Pour exécuter le script (et donc exécuter la liste des commandes qu'il contient) il faut donner les droits d'exécution au fichier (chmod +x script.sh) et lancer 
+	l'exécution du script avec la commande ./script.sh. 
+	Pour exécuter le script mon_script.sh en mode debogage (afficher toutes les étapes) : bash -x mon_script.sh
